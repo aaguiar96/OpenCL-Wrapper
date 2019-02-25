@@ -30,16 +30,23 @@ int main()
     B.push_back(i);	  
   }
 
-  buffer_a.write(&A[0]);
-  buffer_b.write(&B[0]);
+  cl::Event wr_buff_a = buffer_a.write(&A[0], std::vector<cl::Event>());
+  cl::Event wr_buff_b = buffer_b.write(&B[0], std::vector<cl::Event>());
+  wr_buff_a.wait();
+  wr_buff_b.wait();
+
+  std::vector<cl::Event> wait_list;
+  wait_list.push_back(wr_buff_a);
+  wait_list.push_back(wr_buff_b);
 
   Kernel kernel = Kernel(cl_container, cl_container.progs[paths[0]], "simple_add", 0, 12,
                          12, buffers, 0);
-  kernel.exec();
+  cl::Event exec_ev = kernel.exec(wait_list);
+  exec_ev.wait();
   
-
   std::vector<int> C(n);
-  buffer_c.read(&C[0]);
+  cl::Event read_ev = buffer_c.read(&C[0], std::vector<cl::Event>());
+  read_ev.wait();
   
   std::cout << "result: {";
   for (int i = 0; i < C.size(); i++) {

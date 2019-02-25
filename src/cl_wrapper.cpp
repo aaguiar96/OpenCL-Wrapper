@@ -245,29 +245,35 @@ void ClContainer::clean_mem()
 {
 }
 
-void Buffer::write(const void* data)
+cl::Event Buffer::write(const void* data, const std::vector<cl::Event> ev_list)
 {
+  cl::Event ev;
   cl_int error = m_container.queues[queue_id].enqueueWriteBuffer(
-      buffer, CL_TRUE, 0, m_size, data);
+      buffer, CL_FALSE, 0, m_size, data, &ev_list, &ev);
   m_container.error_handler(error);
+  return ev;
 }
 
-void Buffer::read(void* data)
+cl::Event Buffer::read(void* data, const std::vector<cl::Event> ev_list)
 {
+  cl::Event ev;
   cl_int error = m_container.queues[queue_id].enqueueReadBuffer(
-      buffer, CL_TRUE, 0, m_size, data);
+      buffer, CL_FALSE, 0, m_size, data, &ev_list, &ev);
   m_container.error_handler(error);
+  return ev;
 }
 
 void Buffer::clean()
 {
 }
 
-void Kernel::exec()
+cl::Event Kernel::exec(const std::vector<cl::Event> ev_list)
 {
+  cl::Event ev;
   cl_int error = m_container.queues[m_queue_id].enqueueNDRangeKernel(
-      m_kernel, m_offset, cl::NDRange(m_globalsize), cl::NDRange(m_localsize));
+      m_kernel, m_offset, cl::NDRange(m_globalsize), cl::NDRange(m_localsize), &ev_list, &ev);
   m_container.error_handler(error);
+  return ev;
 }
 
 void Kernel::clean() {}

@@ -74,12 +74,12 @@ public:
   /* Passes an argument to the kernel. */
   /* data is a pointer to the memory address where the data is written */
   /* e.g. of usage write(&vec[0]) */
-  void write(const void* data);
+  cl::Event write(const void* data, const std::vector<cl::Event> ev_list);
 
   /* Reads the output data from a kernel. */
   /* data is a pointer to the memory address where the data is read */
   /* e.g. of usage read(&vec[0]) */
-  void read(void* data);
+  cl::Event read(void* data, const std::vector<cl::Event> ev_list);
 
   /* Clear buffer  memory address. */
   void clean();
@@ -110,7 +110,7 @@ public:
   }
 
   /* Executes the kernel program. */
-  void exec();
+  cl::Event exec(const std::vector<cl::Event> ev_list);
 
   /* Clear kernel memory address. */
   void clean();
