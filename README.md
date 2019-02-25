@@ -1,2 +1,10 @@
 # OpenCL-Wrapper
-Simple OpenCL wrapper 
+
+## Testing
+
+```
+$ cd test
+$ cmake .
+$ make
+$ sudo ./test_cl.o 
+```
