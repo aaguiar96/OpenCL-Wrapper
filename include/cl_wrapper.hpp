@@ -90,14 +90,14 @@ class Kernel
 private:
   ClContainer  m_container;
   size_t       m_offset;
-  size_t       m_globalsize;
-  size_t       m_localsize;
+  cl::NDRange  m_globalsize;
+  cl::NDRange  m_localsize;
   unsigned int m_queue_id;
   cl::Kernel   m_kernel;
 
 public:
   Kernel(ClContainer container, cl::Program program, std::string name,
-         size_t offset, size_t global_size, size_t local_size, unsigned int id)
+         size_t offset, cl::NDRange global_size, cl::NDRange local_size, unsigned int id)
       : m_container(container), m_offset(offset), m_globalsize(global_size),
         m_localsize(local_size), m_queue_id(id)
   {

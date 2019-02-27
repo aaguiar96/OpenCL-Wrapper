@@ -11,7 +11,7 @@ int main()
   cl_container.init(paths);
   cl_container.program(paths[0], cl_container.prog_sources[0]);
 
-  int N[1] = {150};
+  int N[1] = {250};
   int n    = N[0];
 
   Buffer buffer_a = Buffer(cl_container, CL_MEM_READ_WRITE, n * sizeof(int), 0);
@@ -39,8 +39,8 @@ int main()
   wait_list.push_back(wr_buff_a);
   wait_list.push_back(wr_buff_b);
 
-  Kernel kernel = Kernel(cl_container, cl_container.progs[paths[0]], "simple_add", 0, 12,
-                         12, 0);
+  Kernel kernel = Kernel(cl_container, cl_container.progs[paths[0]], "simple_add", 0, cl::NDRange(6,6,6),
+                         cl::NDRange(1,1,1), 0);
   cl::Event exec_ev = kernel.exec(buffers, wait_list);
   exec_ev.wait();
   
@@ -54,4 +54,5 @@ int main()
   }
   std::cout << "}" << std::endl;
   
+  return 0;
 }
