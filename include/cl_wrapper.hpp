@@ -97,8 +97,7 @@ private:
 
 public:
   Kernel(ClContainer container, cl::Program program, std::string name,
-         size_t offset, size_t global_size, size_t local_size,
-         std::vector<cl::Buffer> buffers, unsigned int id)
+         size_t offset, size_t global_size, size_t local_size, unsigned int id)
       : m_container(container), m_offset(offset), m_globalsize(global_size),
         m_localsize(local_size), m_queue_id(id)
   {
@@ -106,11 +105,10 @@ public:
     m_kernel = cl::Kernel(program, name.c_str(), &error);
     m_container.error_handler(error);
 
-    for (int i = 0; i < buffers.size(); i++) m_kernel.setArg(i, buffers[i]);
   }
 
   /* Executes the kernel program. */
-  cl::Event exec(const std::vector<cl::Event> ev_list);
+  cl::Event exec(std::vector<cl::Buffer> buffers, const std::vector<cl::Event> ev_list);
 
   /* Clear kernel memory address. */
   void clean();

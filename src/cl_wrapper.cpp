@@ -267,8 +267,9 @@ void Buffer::clean()
 {
 }
 
-cl::Event Kernel::exec(const std::vector<cl::Event> ev_list)
+cl::Event Kernel::exec(std::vector<cl::Buffer> buffers, const std::vector<cl::Event> ev_list)
 {
+  for (int i = 0; i < buffers.size(); i++) m_kernel.setArg(i, buffers[i]);
   cl::Event ev;
   cl_int error = m_container.queues[m_queue_id].enqueueNDRangeKernel(
       m_kernel, m_offset, cl::NDRange(m_globalsize), cl::NDRange(m_localsize), &ev_list, &ev);

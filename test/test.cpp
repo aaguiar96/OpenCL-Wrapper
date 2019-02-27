@@ -10,8 +10,8 @@ int main()
   paths.push_back("/home/pi/tools/cl/test/kernels/kernel.cl");
   cl_container.init(paths);
   cl_container.program(paths[0], cl_container.prog_sources[0]);
-  
-  int N[1] = {100};
+
+  int N[1] = {150};
   int n    = N[0];
 
   Buffer buffer_a = Buffer(cl_container, CL_MEM_READ_WRITE, n * sizeof(int), 0);
@@ -34,14 +34,14 @@ int main()
   cl::Event wr_buff_b = buffer_b.write(&B[0], std::vector<cl::Event>());
   wr_buff_a.wait();
   wr_buff_b.wait();
-
+  
   std::vector<cl::Event> wait_list;
   wait_list.push_back(wr_buff_a);
   wait_list.push_back(wr_buff_b);
 
   Kernel kernel = Kernel(cl_container, cl_container.progs[paths[0]], "simple_add", 0, 12,
-                         12, buffers, 0);
-  cl::Event exec_ev = kernel.exec(wait_list);
+                         12, 0);
+  cl::Event exec_ev = kernel.exec(buffers, wait_list);
   exec_ev.wait();
   
   std::vector<int> C(n);
