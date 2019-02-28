@@ -9,6 +9,6 @@ $ make
 $ sudo ./test_cl.o 
 ```
 
-# LICENCE
+## LICENCE
 
 * **MIT**
