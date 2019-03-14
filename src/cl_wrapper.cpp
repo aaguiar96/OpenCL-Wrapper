@@ -1,8 +1,11 @@
-#include "../include/cl_wrapper.hpp"
+#include "../include/cl_wrapper/cl_wrapper.hpp"
 
 namespace cl_wrapper {
 void ClContainer::init(std::vector<std::string> paths)
 {
+#ifdef DEBUG
+  std::cout << "Entering init()" << std::endl;
+#endif
   cl_int                    error;
   std::vector<cl::Platform> platforms;
   cl::Platform::get(&platforms);
@@ -35,15 +38,25 @@ void ClContainer::init(std::vector<std::string> paths)
     read_source(p, &source_code);
     prog_sources.push_back(source_code);
   }
+#ifdef DEBUG
+  std::cout << "Leaving init()" << std::endl;
+#endif
 }
 
 void ClContainer::program(std::string path, std::string prog_source)
 {
+#ifdef DEBUG
+  std::cout << "Entering program()" << std::endl;
+#endif
   cl::Program::Sources source;
   source.push_back({prog_source.c_str(), prog_source.size()}); 
 
   cl::Program prog  = cl::Program(context, source);
   cl_int      error = prog.build({m_device});
+  if(error < 0) {
+    std::cerr << "Log for device " << m_device.getInfo<CL_DEVICE_NAME>() << std::endl;
+    std::cerr << prog.getBuildInfo<CL_PROGRAM_BUILD_LOG>(m_device) << std::endl;
+  }
   error_handler(error);
   progs[path] = prog;
 
@@ -52,6 +65,9 @@ void ClContainer::program(std::string path, std::string prog_source)
   queues.push_back(queue);
   progs_id[path] = (nProgs+1);
   nProgs++;
+#ifdef DEBUG
+  std::cout << "Leaving program()" << std::endl;
+#endif
 }
 
 void ClContainer::error_handler(cl_int error)
@@ -230,7 +246,7 @@ void ClContainer::error_handler(cl_int error)
     break;
   }
 
-  std::cerr << "OpenCL fails. The error was " << error_message << "(" << error << ")" << std::endl;
+  std::cerr << "OpenCL fails. The error was " << error_message << " (" << error << ")" << std::endl;
   exit(1);
 }
 
@@ -241,40 +257,88 @@ void ClContainer::read_source(std::string path, std::string* source_code)
                             (std::istreambuf_iterator<char>()));
 }
 
-void ClContainer::clean_mem()
+cl_float ClContainer::get_duration(const cl::Event event) const
 {
+  cl_ulong start, end;
+  event.getProfilingInfo(CL_PROFILING_COMMAND_START, &start);
+  event.getProfilingInfo(CL_PROFILING_COMMAND_END,   &end);
+  return ((end - start)/1000000000);
+}
+
+Buffer::Buffer(ClContainer container, cl_mem_flags flags, unsigned int size,
+       unsigned int id)
+    : m_container(container), m_size(size),
+      queue_id(id)
+{
+#ifdef DEBUG
+  std::cout << "Entering Buffer::Buffer()" << std::endl;
+#endif
+  cl_int error;
+  buffer = cl::Buffer(m_container.context, flags, m_size, NULL, &error);
+  m_container.error_handler(error);
+#ifdef DEBUG
+  std::cout << "Leaving Buffer::Buffer()" << std::endl;
+#endif
 }
 
 cl::Event Buffer::write(const void* data, const std::vector<cl::Event> ev_list)
 {
+#ifdef DEBUG
+  std::cout << "Entering buffer::write()" << std::endl;
+#endif
   cl::Event ev;
   cl_int error = m_container.queues[queue_id].enqueueWriteBuffer(
       buffer, CL_FALSE, 0, m_size, data, &ev_list, &ev);
   m_container.error_handler(error);
+#ifdef DEBUG
+  std::cout << "Leaving buffer::write()" << std::endl;
+#endif
   return ev;
 }
 
 cl::Event Buffer::read(void* data, const std::vector<cl::Event> ev_list)
 {
+#ifdef DEBUG
+  std::cout << "Entering buffer::read()" << std::endl;
+#endif
   cl::Event ev;
   cl_int error = m_container.queues[queue_id].enqueueReadBuffer(
       buffer, CL_FALSE, 0, m_size, data, &ev_list, &ev);
   m_container.error_handler(error);
+#ifdef DEBUG
+  std::cout << "Leaving buffer::read()" << std::endl;
+#endif
   return ev;
 }
 
-void Buffer::clean()
+Kernel::Kernel(ClContainer container, cl::Program program, std::string name,
+       size_t offset, cl::NDRange global_size, cl::NDRange local_size, unsigned int id)
+    : m_container(container), m_offset(offset), m_globalsize(global_size),
+      m_localsize(local_size), m_queue_id(id)
 {
+#ifdef DEBUG
+  std::cout << "Entering Kernel::Kernel()" << std::endl;
+#endif
+  cl_int error;
+  m_kernel = cl::Kernel(program, name.c_str(), &error);
+  m_container.error_handler(error);
+#ifdef DEBUG
+  std::cout << "Leaving Kernel::Kernel()" << std::endl;
+#endif
 }
 
 cl::Event Kernel::exec(const std::vector<cl::Event> ev_list)
 {
+#ifdef DEBUG
+  std::cout << "Entering Kernel::exec()" << std::endl;
+#endif
   cl::Event ev;
   cl_int error = m_container.queues[m_queue_id].enqueueNDRangeKernel(
-      m_kernel, m_offset, cl::NDRange(m_globalsize), cl::NDRange(m_localsize), &ev_list, &ev);
+      m_kernel, m_offset, m_globalsize, m_localsize, &ev_list, &ev);
   m_container.error_handler(error);
+#ifdef DEBUG
+  std::cout << "Leaving Kernel::exec()" << std::endl;
+#endif
   return ev;
 }
-
-void Kernel::clean() {}
 };

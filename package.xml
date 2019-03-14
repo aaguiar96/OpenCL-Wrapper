@@ -1,0 +1,21 @@
+<package>
+  <name>cl_wrapper</name>
+  <version>0.0.1</version>
+  <description>
+    Opencl Wrapper to AMD GPUs.
+  </description>
+
+  <maintainer email="andre.aguiar@fe.up.pt">maintained by: Andre Aguiar</maintainer>
+
+  <license>GPL</license>
+
+  <url type="bugtracker">https://github.com/aaguiar96/cl_wrapper/issues</url>
+
+  <author>Andre Aguiar</author>
+  <author email="andre.aguiar@fe.up.pt">Andre Aguiar</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+  </export>
+</package>
