@@ -327,11 +327,15 @@ Kernel::Kernel(ClContainer container, cl::Program program, std::string name,
 #endif
 }
 
-cl::Event Kernel::exec(const std::vector<cl::Event> ev_list)
+cl::Event Kernel::exec(std::vector<cl::Buffer> buffers, const std::vector<cl::Event> ev_list)
 {
+<<<<<<< HEAD
 #ifdef DEBUG
   std::cout << "Entering Kernel::exec()" << std::endl;
 #endif
+=======
+  for (int i = 0; i < buffers.size(); i++) m_kernel.setArg(i, buffers[i]);
+>>>>>>> cadb5f36301343645d97bcf4e1dcd03442f3fdd1
   cl::Event ev;
   cl_int error = m_container.queues[m_queue_id].enqueueNDRangeKernel(
       m_kernel, m_offset, m_globalsize, m_localsize, &ev_list, &ev);
