@@ -92,18 +92,9 @@ private:
 public:
 
   Kernel(ClContainer container, cl::Program program, std::string name,
-<<<<<<< HEAD:include/cl_wrapper/cl_wrapper.hpp
          size_t offset, cl::NDRange global_size, cl::NDRange local_size, unsigned int id);
 
-  ~Kernel()
-=======
-         size_t offset, cl::NDRange global_size, cl::NDRange local_size, unsigned int id)
-      : m_container(container), m_offset(offset), m_globalsize(global_size),
-        m_localsize(local_size), m_queue_id(id)
->>>>>>> cadb5f36301343645d97bcf4e1dcd03442f3fdd1:include/cl_wrapper.hpp
-  {
-    clReleaseKernel(m_kernel());
-  }
+  ~Kernel();
 
   /* Sets a kernel argument with a given index */
   template <typename T>
@@ -119,7 +110,6 @@ public:
   #endif
   }
 
-<<<<<<< HEAD:include/cl_wrapper/cl_wrapper.hpp
   template <typename T>
   void setArgument(T data, size_t size, cl_uint index)
   {
@@ -135,14 +125,8 @@ public:
 
   /* Executes the kernel program. */
   cl::Event exec(const std::vector<cl::Event> ev_list);
-=======
-  }
-
-  /* Executes the kernel program. */
-  cl::Event exec(std::vector<cl::Buffer> buffers, const std::vector<cl::Event> ev_list);
-
+	
   /* Clear kernel memory address. */
   void clean();
->>>>>>> cadb5f36301343645d97bcf4e1dcd03442f3fdd1:include/cl_wrapper.hpp
 };
 };
